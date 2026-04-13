@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+const BASE_URL = import.meta.env.VITE_API_URL || 'https://civic-backend.onrender.com';
+
 const API = axios.create({
-  baseURL: "http://127.0.0.1:5000/api",
+  baseURL: `${BASE_URL}/api`,
   headers: {
     'Content-Type': 'application/json',
   },

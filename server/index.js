@@ -14,11 +14,28 @@ const app = express();
 // Middleware
 // ---------------------
 
-// CORS — allow frontend dev server
+// Allowed origins — dev + production (Vercel)
+const ALLOWED_ORIGINS = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'https://civic-sense-system.vercel.app',
+  process.env.CLIENT_URL, // optional override via env var
+].filter(Boolean); // remove undefined if CLIENT_URL not set
+
+// CORS — allow configured origins with credentials
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:3000'],
+    origin: (origin, callback) => {
+      // Allow server-to-server calls (e.g. Postman, health checks) with no origin
+      if (!origin) return callback(null, true);
+      if (ALLOWED_ORIGINS.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error(`CORS: origin '${origin}' not allowed`));
+    },
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
 
@@ -44,12 +61,39 @@ app.use('/uploads', express.static(uploadsDir));
 // Routes
 // ---------------------
 
+// Root endpoint — confirms server is alive (visible when you open the Render URL in a browser)
+app.get('/', (req, res) => {
+  res.json({
+    message: '✅ Civic Sense backend is running',
+    docs: {
+      health:  '/api/health',
+      auth:    '/api/auth/login  |  /api/auth/signup  |  /api/auth/me',
+      issues:  '/api/issues',
+    },
+  });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/issues', issueRoutes);
 
-// Health check
+// Enhanced health check — shows DB + env var status so you can diagnose Render issues from the browser
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  const mongoUri = process.env.MONGO_URI || '';
+  const isAtlas  = mongoUri.startsWith('mongodb+srv://');
+  const isLocal  = mongoUri.startsWith('mongodb://127') || mongoUri.startsWith('mongodb://localhost');
+
+  res.json({
+    status:    'ok',
+    timestamp: new Date().toISOString(),
+    env: {
+      NODE_ENV:       process.env.NODE_ENV    || '(not set)',
+      PORT:           process.env.PORT        || '(not set — defaulting to 5000)',
+      MONGO_URI_type: isAtlas ? 'Atlas ✅' : isLocal ? 'Local ⚠️  (will fail on Render)' : '(not set ❌)',
+      JWT_SECRET:     process.env.JWT_SECRET  ? 'set ✅' : '(not set ❌)',
+      CLIENT_URL:     process.env.CLIENT_URL  || '(not set — using hardcoded allowlist)',
+    },
+    cors_origins: ALLOWED_ORIGINS,
+  });
 });
 
 // ---------------------
@@ -95,12 +139,18 @@ const startServer = async () => {
   const dbConnected = await connectDB();
 
   app.listen(PORT, () => {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const host = isProduction
+      ? 'https://civic-backend.onrender.com'
+      : `http://localhost:${PORT}`;
+
     console.log('');
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-    console.log(`📋 API Base: http://localhost:${PORT}/api`);
-    console.log(`🔐 Auth:     POST /api/auth/signup, POST /api/auth/login`);
-    console.log(`📝 Issues:   /api/issues`);
-    console.log(`💚 Health:   GET /api/health`);
+    console.log(`🚀 Server running on ${host}`);
+    console.log(`📋 API Base:    ${host}/api`);
+    console.log(`🔐 Auth:        POST /api/auth/signup, POST /api/auth/login`);
+    console.log(`📝 Issues:      /api/issues`);
+    console.log(`💚 Health:      GET /api/health`);
+    console.log(`🌍 CORS origins: ${ALLOWED_ORIGINS.join(', ')}`);
     if (!dbConnected) {
       console.log('');
       console.log(`⚠️  Database NOT connected — fix MONGO_URI in .env`);

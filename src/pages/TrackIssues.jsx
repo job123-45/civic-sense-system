@@ -96,10 +96,12 @@ const TrackIssues = ({ role }) => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
+    const API_BASE = import.meta.env.VITE_API_URL || 'https://civic-backend.onrender.com';
+
     const getImageUrl = (imagePath) => {
          if (!imagePath) return null;
          if (imagePath.startsWith('http')) return imagePath; // External URLs (if any)
-         return `http://localhost:5000${imagePath}`; // Map to our backend static folder
+         return `${API_BASE}${imagePath}`; // Map to our backend static folder
     }
 
     return (
