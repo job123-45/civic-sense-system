@@ -61,18 +61,6 @@ app.use('/uploads', express.static(uploadsDir));
 // Routes
 // ---------------------
 
-// Root endpoint — confirms server is alive (visible when you open the Render URL in a browser)
-app.get('/', (req, res) => {
-  res.json({
-    message: '✅ Civic Sense backend is running',
-    docs: {
-      health:  '/api/health',
-      auth:    '/api/auth/login  |  /api/auth/signup  |  /api/auth/me',
-      issues:  '/api/issues',
-    },
-  });
-});
-
 app.use('/api/auth', authRoutes);
 app.use('/api/issues', issueRoutes);
 
@@ -93,6 +81,19 @@ app.get('/api/health', (req, res) => {
       CLIENT_URL:     process.env.CLIENT_URL  || '(not set — using hardcoded allowlist)',
     },
     cors_origins: ALLOWED_ORIGINS,
+  });
+});
+
+// Root endpoint — after API routes, before 404 handler
+// Visiting https://civic-backend.onrender.com/ will show this
+app.get('/', (req, res) => {
+  res.json({
+    message: '✅ Civic Sense backend is running',
+    docs: {
+      health:  '/api/health',
+      auth:    '/api/auth/login  |  /api/auth/signup  |  /api/auth/me',
+      issues:  '/api/issues',
+    },
   });
 });
 
