@@ -52,7 +52,7 @@ const Sidebar = ({ onLogout, role }) => {
                         </a>
                     </li>
                     <li>
-                        <a href="#" className="nav-link logout" onClick={(e) => { e.preventDefault(); onLogout(); }}>
+                        <a href="#" className="nav-link logout" onClick={(e) => { e.preventDefault(); localStorage.removeItem('user'); localStorage.removeItem('token'); onLogout(); }}>
                             <LogOut size={20} />
                             <span>Log Out</span>
                         </a>

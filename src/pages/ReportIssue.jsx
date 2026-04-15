@@ -70,16 +70,10 @@ const ReportIssue = ({ role }) => {
     const fetchPincode = async (lat, lng) => {
         setIsFetchingPincode(true);
         try {
-            const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-            const data = await response.json();
-            
-            if (data && data.address && data.address.postcode) {
-                setForm(prev => ({ ...prev, location: data.address.postcode }));
-                addToast('Pincode retrieved automatically.', 'success');
-            } else {
-                setForm(prev => ({ ...prev, location: '' }));
-                addToast('Pincode not found for this location. Please enter manually.', 'warning');
-            }
+            // Demo Mode: Mock network delay and return a dummy pincode
+            await new Promise(resolve => setTimeout(resolve, 800));
+            setForm(prev => ({ ...prev, location: '110001' }));
+            addToast('Pincode retrieved automatically. (Demo Mock)', 'success');
         } catch (err) {
             console.error("Geocoding error", err);
             setForm(prev => ({ ...prev, location: '' }));

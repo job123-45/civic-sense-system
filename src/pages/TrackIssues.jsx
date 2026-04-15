@@ -96,12 +96,11 @@ const TrackIssues = ({ role }) => {
         return new Date(dateString).toLocaleDateString(undefined, options);
     };
 
-    const API_BASE = import.meta.env.VITE_API_URL || 'https://civic-backend.onrender.com';
-
     const getImageUrl = (imagePath) => {
          if (!imagePath) return null;
-         if (imagePath.startsWith('http')) return imagePath; // External URLs (if any)
-         return `${API_BASE}${imagePath}`; // Map to our backend static folder
+         if (imagePath.startsWith('http')) return imagePath;
+         // Demo mode: no backend to serve images, use placeholder
+         return 'https://via.placeholder.com/800x400?text=Demo+Image';
     }
 
     return (

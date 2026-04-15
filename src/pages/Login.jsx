@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { LayoutDashboard, Mail, Lock, LogIn, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { loginUser } from '../services/api';
 import './Login.css';
 
 const Login = ({ onLogin }) => {
@@ -19,23 +18,23 @@ const Login = ({ onLogin }) => {
     setError('');
 
     try {
-      const { data } = await loginUser(email, password);
+      // Demo mode: simulate a small delay, then store user in localStorage
+      await new Promise((r) => setTimeout(r, 600));
 
-      if (data.success) {
-        // Store token and user in localStorage
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+      const user = {
+        name: 'Demo User',
+        email,
+        role: role === 'official' ? 'admin' : 'citizen',
+      };
 
-        // Map backend role to frontend role
-        const frontendRole = data.user.role === 'admin' ? 'official' : 'citizen';
-        onLogin(frontendRole);
-      }
+      localStorage.setItem('token', 'demo-token-xyz');
+      localStorage.setItem('user', JSON.stringify(user));
+
+      // Map to frontend role
+      const frontendRole = role === 'official' ? 'official' : 'citizen';
+      onLogin(frontendRole);
     } catch (err) {
-      const message =
-        err.response?.data?.message ||
-        err.message ||
-        'Login failed. Please try again.';
-      setError(message);
+      setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +48,26 @@ const Login = ({ onLogin }) => {
       </div>
 
       <div className="login-card glass-panel animate-fade-in">
+        {/* Demo Mode Banner */}
+        <div style={{
+          background: 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
+          color: '#fff',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          marginBottom: '16px',
+          textAlign: 'center',
+          fontSize: '0.8rem',
+          fontWeight: 600,
+          letterSpacing: '0.5px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+        }}>
+          <AlertCircle size={14} />
+          Demo Mode — No backend connected
+        </div>
+
         <div className="login-header">
           <div className="brand-logo">
             <LayoutDashboard size={28} />
@@ -140,8 +159,8 @@ const Login = ({ onLogin }) => {
         </form>
 
         <div className="login-footer-text">
-          <p className="text-muted">
-            Don't have an account? <a href="#" className="signup-link">Contact Admin</a>
+          <p className="text-muted" style={{ fontSize: '0.78rem' }}>
+            💡 Enter any email & password to log in (demo mode)
           </p>
         </div>
       </div>
