@@ -1,11 +1,9 @@
-const jwt = require('jsonwebtoken');
+const { signToken } = require('../config/jwt');
 const User = require('../models/User');
 
 // Generate JWT Helper
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+  return signToken({ id });
 };
 
 // @desc    Register a new user
@@ -13,7 +11,7 @@ const generateToken = (id) => {
 // @access  Public
 const signup = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     // 1. Validation
     if (!name || !email || !password) {
@@ -37,7 +35,7 @@ const signup = async (req, res) => {
       name,
       email,
       password,
-      role: role === 'admin' ? 'admin' : 'citizen', // Only allow valid roles
+      role: 'citizen', // Privileged roles must be assigned by a trusted operator.
     });
 
     // 4. Generate token

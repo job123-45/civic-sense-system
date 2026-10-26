@@ -1,6 +1,6 @@
 # CivicSense AI - Smart Civic Complaint System
 
-A modern, premium digital platform designed to enable citizens to efficiently report, track, and resolve urban issues such as potholes, waste management, or broken infrastructure. This project currently represents the full **Frontend UI**, built to seamlessly mock and integrate with backend AI and routing systems.
+A civic complaint prototype with a React frontend and an Express/MongoDB backend. AI classification and routing remain simulated in the UI; the backend provides account, issue, and upload APIs.
 
 ## 🌟 Key Features
 
@@ -44,6 +44,21 @@ Make sure you have Node.js installed.
 - `src/pages/Dashboard.jsx` - The main municipal analytics view with charts.
 - `src/pages/ReportIssue.jsx` - The citizen reporting flow featuring mock AI analysis.
 - `src/pages/TrackIssues.jsx` - The real-time timeline tracking panel for users.
+- `server/` - Express API, MongoDB connection, authentication, and issue upload handling.
+
+## Backend setup
+
+Install the backend dependencies and create a local environment file:
+
+```powershell
+cd server
+npm install
+Copy-Item .env.example .env
+```
+
+Set `MONGO_URI` to the MongoDB instance intended for this environment. Generate a cryptographically random JWT secret of at least 32 bytes (64 hexadecimal characters is a convenient representation) and set `JWT_SECRET` in the ignored `server/.env` file or the deployment secret store. The server refuses to start if the secret is missing or too short. Never commit `.env` or put the secret in frontend code.
+
+Start the API from the `server` directory with `npm start`. Run its security regression tests there with `npm test`.
 
 ## 🔮 Future Integration
-Currently, the application manages mocked state internally. The next phase involves integrating a real backend (e.g., Python/Django or Node/Express) and an actual machine learning classification API to replace the simulated `setTimeout` logic in the `ReportIssue` component.
+The frontend currently manages mocked state internally. Future work can connect it to the existing Express API and replace the simulated `setTimeout` classification logic in the `ReportIssue` component with a real machine learning classification API.
