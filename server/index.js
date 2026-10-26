@@ -3,6 +3,10 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
+const { getJwtSecret } = require('./config/jwt');
+
+// Fail before connecting to MongoDB or starting HTTP listeners.
+getJwtSecret();
 
 const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
